@@ -1,0 +1,360 @@
+<!DOCTYPE html >
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="Content-Script-Type" content="text/javascript">
+
+	<script src="dashboard.js"></script>
+	<script src="internationalisation.js"></script>
+	<script src="options.js"></script>
+
+	<link rel="stylesheet" href="dashboard.css" type="text/css"> 
+   <title>e-inkDashboardJS</title>
+</head>
+<body style="margin:0; padding:0;">
+<script>
+// Основные переменные
+// from options.js
+var mode={}; 	// все данные конкретного клиента.
+var alarm = false, prevMode = null, nextMode = null, theHeading=null;
+var keyCodes = {};
+var nowFsound; 	// функция, сейчас воспроизводящая звук
+var alarmInterval;	// объект setInterval со звуком оповещения. Для прекращения звука.
+
+// Восстановление состояния
+let shadowmode = getCookie('e-inkDashboardJSmode');
+//console.log(shadowmode);
+if(shadowmode) { 	// 
+	restoreMode();
+}
+
+var controlKeys = getCookie('e-inkDashboardJScontrolKeys');
+if(!controlKeys) {
+	controlKeys = {
+		'upKey': ['ArrowUp',38],
+		'downKey': ['ArrowDown',40],
+		'menuKey': ['AltRight',18,2],
+		'magneticKey': ['KeyM',77]
+	}
+}
+//console.log('controlKeys before',controlKeys);
+window.addEventListener("keydown", keySu, true);  
+
+</script>
+
+<!-- Menu -->
+<form id='mainMenuWin' style = '
+	display:none;
+	position:fixed;
+	right: 5%;
+	top: 5%;
+	width:75%;
+	background-color:lightgrey;
+	padding: 1rem;
+	font-size: xx-large;
+	z-index: 10;
+' onSubmit='menuOnSubmit();return false;'
+>
+	<table>
+		<tr style='height:2rem;'>
+			<td><input type='checkbox' id='depthAlarmSet' value='1' style='height:3em;width:3rem;'>
+			</td><td><span id='dashboardDepthMenuTXTspan'></span></td><td style='width:10%;'><input type='text' id=minDepthValue value='' style='width:95%;font-size:inherit;'></td>
+		</tr><tr style='height:2rem;'>
+			<td><input type='checkbox' id='minSpeedAlarmSet' value='1' style='height:3em;width:3rem;'>
+			</td><td><span id='dashboardMinSpeedMenuTXTspan'></span></td><td style='width:10%;'><input type='text' id=minSpeedValue value='' style='width:95%;font-size:inherit;'></td>
+		</tr><tr style='height:2rem;'>
+			<td><input type='checkbox' id='maxSpeedAlarmSet' value='1' style='height:3em;width:3rem;'>
+			</td><td><span id='dashboardMaxSpeedMenuTXTspan'></span>
+			</td><td style='width:10%;'><input type='text' id=maxSpeedValue value='' style='width:95%;font-size:inherit;'></td>
+		</tr><tr style='height:2rem;'>
+			<td><input type='checkbox' id='toHeadingAlarmSet' value='1' style='height:3em;width:3rem;' ></td><td>
+				<span id='dashboardHeadingTXTspan'></span>
+				<span id='toHeadingPrecision'><br> &nbsp; <input type='radio' name='toHeadingPrecision' value='10'> &plusmn; 10&deg; &nbsp; <input type='radio' name='toHeadingPrecision' value='20' > &plusmn; 20&deg;</span>
+			</td>
+			<td style='width:10%;'><input type='text' id=toHeadingValue value='' style='width:95%;font-size:inherit;'></td>
+		</tr><tr>
+			<td></td><td style='padding-top:1rem;'>
+				<input type='button' value='&nbsp;&nbsp;&#x2718;&nbsp;&nbsp;' style='font-size:130%;' onClick='mainMenuWin.style.display="none";'>
+				<input type='submit' id='submit' value='&nbsp;&nbsp;&#x2713;&nbsp;&nbsp;' style='font-size:130%;float:right;'>
+			</td><td></td>
+		</tr>
+	</table>
+	<div style="width:100%;text-align:right;">
+		<span id='dashboardKeysMenuTXTspan' style="font-size:50%;"></span>
+		 &nbsp; <a href="#" onClick="openSetKeysWin();" ><img src="img/settings.png" alt="define keys" class="small"></a>
+	</div>
+</form>
+<!-- Border display -->
+<table id='borderSigns' style='
+	border:1px solid; 
+	position:fixed; 
+	width:100%; 
+	height:100%; 
+	margin:0; padding:0;
+	text-align:center;
+	opacity: 0.25;
+	z-index: -1;
+'>
+<tr>
+	<td style="width:20%;height:20%;"><span class='big_mid_symbol wb'></span></td>
+	<td style="width:20%;height:20%;"><span class='big_mid_symbol wb'></span></td>
+	<td style="width:20%;height:20%;"><span class='big_mid_symbol wb'></span></td>
+	<td style="width:20%;height:20%;"><span class='big_mid_symbol wb'></span></td>
+	<td style="width:20%;height:20%;"><span class='big_mid_symbol wb'></span></td>
+</tr>
+<tr>
+	<td style="width:20%;height:20%;"><span class='big_mid_symbol wb'></span></td>
+	<td rowspan="3" colspan="3"></td>
+	<td style="width:20%;height:20%;"><span class='big_mid_symbol wb'></span></td>
+</tr>
+<tr>
+	<td style="width:20%;height:20%;"><span class='big_mid_symbol wb'></span></td>
+	<td style="width:20%;height:20%;"><span class='big_mid_symbol wb'></span></td>
+</tr>
+<tr>
+	<td style="width:20%;height:20%;"><span class='big_mid_symbol wb'></span></td>
+	<td style="width:20%;height:20%;"><span class='big_mid_symbol wb'></span></td>
+</tr>
+<tr>
+	<td style="width:20%;height:20%;"><span class='big_mid_symbol wb'></span></td>
+	<td style="width:20%;height:20%;"><span class='big_mid_symbol wb'></span></td>
+	<td style="width:20%;height:20%;"><span class='big_mid_symbol wb'></span></td>
+	<td style="width:20%;height:20%;"><span class='big_mid_symbol wb'></span></td>
+	<td style="width:20%;height:20%;"><span class='big_mid_symbol wb'></span></td>
+</tr>
+</table>
+<!-- Center display -->
+<div style = '
+	position:absolute;
+	left: 0;
+	right: 0;
+	top: 5%;
+	bottom: 0;
+	margin: auto;
+	width:70%;	
+'>
+	<div style='text-align:center;'>
+		<span id='headerSpan' class='mid_symbol' style='vertical-align:middle; padding: 0; margin: 0;'></span>
+	</div>
+	<div id='dashboard' class='' style='text-align:center; padding: 0; margin: 0;'>
+		<span id='symbolSpan' class='big_symbol' style='vertical-align:middle;'></span>
+	</div>
+	<div style='text-align:center; bottom:0; padding: 0; margin: 0;'>
+		<button id='magneticTurnButton' class='mid_symbol' style='width:14%;vertical-align:middle;' onClick='mode.magnetic=!mode.magnetic;display();saveMode();'>	
+			<span id='magneticTurnButtonSpan'></span>
+		</button>
+		<button class='mid_symbol' style='width:70%;vertical-align:middle;' onClick='mode.mode=nextMode;display();saveMode();'>
+			<span id='nextsymbolSpan' style=''></span>
+		</button>
+		<button class='mid_symbol' style='width:14%;vertical-align:middle;' onClick='menuOpen();'
+		>
+				<img src='img/menu.png' alt='menu'>
+		</button>
+	</div>
+</div>
+<!-- Keys setting window -->
+<div id='setKeysWin' style="
+display:none;
+position:fixed;
+right: 20%;
+top: 20%;
+width:55%;
+background-color:grey;
+padding: 1rem;
+font-size: xx-large;
+z-index: 20;
+margin-left: auto;
+margin-right: auto;
+font-size:x-large;
+">
+	<span id='dashboardKeySetupTXTspan'></span><br>
+	<div  style="width:90%;margin:0 auto 0 auto;">
+		<table>
+		<tr>
+		<td style="width:60%;"><span id='dashboardKeyNextTXTspan'></span></td>
+		<td><input type="radio" name="setKeysSelect" id="downKeyField" onClick="this.value='';downKeyFieldDisplay.innerHTML='';keyCodes.downKey=[];"></td>
+		<td style="width:40%;font-size:120%;background-color:white"><span id='downKeyFieldDisplay'></span></td>
+		</tr><tr>
+		<td style="width:60%;"><span id='dashboardKeyPrevTXTspan'></span></td>
+		<td><input type="radio" name="setKeysSelect" id="upKeyField" onClick="this.value='';upKeyFieldDisplay.innerHTML='';keyCodes.upKey=[];" ></td>
+		<td style="width:40%;font-size:120%;background-color:white"><span id='upKeyFieldDisplay'></span></td>
+		</tr><tr>
+		<td style="width:60%;"><span id='dashboardKeyMenuTXTspan'></span></td>
+		<td><input type="radio" name="setKeysSelect" id="menuKeyField" onClick="this.value='';menuKeyFieldDisplay.innerHTML='';keyCodes.menuKey=[];""></td>
+		<td style="width:40%;font-size:120%;background-color:white"><span id='menuKeyFieldDisplay'></span></td>
+		</tr><tr>
+		<td style="width:60%;"><span id='dashboardKeyMagneticTXTspan'></span></td>
+		<td><input type="radio" name="setKeysSelect" id="magneticKeyField" onClick="this.value='';magneticKeyFieldDisplay.innerHTML='';keyCodes.magneticKey=[];""></td>
+		<td style="width:40%;font-size:120%;background-color:white"><span id='magneticKeyFieldDisplay'></span></td>
+		</tr>
+		</table>
+	</div>
+	<div style="width:70%;margin:1em auto 1em auto;">
+		<input type='button' value='&#x2718;' style='font-size:120%;' onClick="openSetKeysWin();" ><input type='submit' name='submit' value='&#x2713;' onClick="saveKeys();" style='font-size:120%;float:right;'>
+	</div>
+</div>
+<div id='currDirectMark'></div><div id='currTrackMark'></div>
+</body>
+</html>
+
+<script>
+// Восстановление интерфейса
+internationalisation(); // Интернационализация
+if(mode.toHeadingAlarm) {
+	showDirectionMark();	// Метка указанного направления
+}
+</script>
+<script>
+// Коммуникативная часть
+let tpv = {};
+//const uri = `ws://localhost:3000/signalk/v1/stream?subscribe=none`;
+const uri = `ws://${document.location.host}/signalk/v1/stream?subscribe=none`; 	// подписываться будем отдельно
+
+function doWebsocked(uri){
+let socket = new WebSocket(uri);
+socket.onopen = websocketOnOpen;
+socket.onmessage = websocketOnMessage;
+socket.onclose = websocketOnClose;
+socket.onerror = websocketOnError;
+} // end function doWebsocked
+
+function websocketOnOpen(event) {
+	console.log("Winsocket open: Connection establish with "+uri);
+	event.target.send(JSON.stringify(signalKsubscribe));	// signalKsubscribe в options.js
+}; // end function websocketOnOpen
+
+function websocketOnMessage(event) {
+	//console.log(event);
+	// Получаем исходные данные
+	let SKdata;
+	try {
+		SKdata = JSON.parse(event.data);
+	}
+	catch(error) {
+		console.log('Parsing inbound data',error.message);
+		tpv = {};
+		display();
+		return;
+	}
+	//console.log(`[message] Данные получены с сервера: `,SKdata);
+	if(SKdata.roles) { 	// greeting
+		tpv = {};
+		display();
+		return;
+	}
+	// Берём нужные данные
+	for(let props of SKdata.updates){
+		for(let prop of props.values) {
+			//console.log(prop.path,prop.value)
+			
+			switch(prop.path){
+			case 'navigation.state':
+				if(!tpv.status) tpv.status = {};
+				tpv.status.value =  prop.value;
+				tpv.status.timestamp =  Date.parse(props.timestamp);
+				break;
+			case 'navigation.speedOverGround':
+				if(!tpv.speed) tpv.speed = {};
+				tpv.speed.value = prop.value;
+				tpv.speed.timestamp =  Date.parse(props.timestamp);
+				break;
+			case 'navigation.courseOverGroundTrue':
+				if(!tpv.track) tpv.track = {};
+				tpv['track'].value = prop.value *180/Math.PI;
+				tpv.track.timestamp =  Date.parse(props.timestamp);
+				break;
+			case 'navigation.headingTrue':
+				if(!tpv.heading) tpv.heading = {};
+				tpv.heading.value = Math.round(prop.value *180/Math.PI);
+				tpv.heading.timestamp =  Date.parse(props.timestamp);
+				break;
+			case 'environment.depth.belowSurface':
+				if(!tpv.depth) tpv.depth = {};
+				tpv['depth'].value = prop.value;
+				tpv.depth.timestamp =  Date.parse(props.timestamp);
+				break;
+			case 'environment.depth.belowTransducer':
+				if(!tpv.depth) tpv.depth = {};
+				tpv['depth'].value = prop.value;
+				tpv.depth.timestamp =  Date.parse(props.timestamp);
+				break;
+			case 'navigation.destination.commonName':
+				if(!tpv.destination) tpv.destination = {};
+				tpv.destination.value = prop.value;
+				tpv.destination.timestamp =  Date.parse(props.timestamp);
+				break;
+			case 'navigation.destination.eta':
+				if(!tpv.eta) tpv.eta = {};
+				tpv.eta.value = prop.value;
+				tpv.eta.timestamp =  Date.parse(props.timestamp);
+				break;
+			case 'navigation.courseOverGroundMagnetic':
+				if(!tpv.magtrack) tpv.magtrack = {};
+				tpv['magtrack'].value = prop.value *180/Math.PI;
+				tpv.magtrack.timestamp =  Date.parse(props.timestamp);
+				break;
+			case 'navigation.magneticDeviation':
+				if(!tpv.magvar) tpv.magvar = {};
+				tpv['magvar'].value = prop.value *180/Math.PI;
+				tpv.magvar.timestamp =  Date.parse(props.timestamp);
+				break;
+			}
+		}
+	}
+
+	//delete tpv['track']; 	// 
+	//delete tpv['speed']; 	// 
+	//delete tpv['depth']; 	// 
+	
+	// Очищаем данные от устаревших
+	if(checkDataFreshness){
+		for(let props in displayData){
+			for(let variant of displayData[props].variants){
+				if(variant[0] in tpv){
+					//console.log(displayData[props],variant[0])
+					window.setTimeout(function(tpvElem,fresh){
+						if(tpv[tpvElem] && ((Date.now()-tpv[tpvElem].timestamp)>fresh)){
+							console.log('Property',tpvElem,'expired on',(Date.now()-tpv[tpvElem].timestamp)/1000,'sec.');
+							delete tpv[tpvElem]; 	// 
+							display();
+						}
+					}, displayData[props].fresh,variant[0],displayData[props].fresh); 	// по истечению срока свежести проверим время получения данных. Если за это время они обновились - ok.
+				}
+			}
+		}
+	}
+	
+	// Поправим режимы пока данные не все
+	//console.log('shadowmode:',shadowmode);
+	if(shadowmode) { 	// текущее состояние определяется принятыми на сейчас данными, но раньше их могло быть больше, и сохранённое состояние может требовать показывать те данные, которых сейчас нет. Когда-нибудь их надо показать.
+		restoreMode();
+	}
+	if(!tpv['magtrack']) {	// Могло быть указано показывать магнитный курс, но в текущих данных нет магнитного курса
+		mode.magnetic = false;	// принудительно не будем показывать магнитный курс
+	}
+	if(!mode.toHeadingPrecision) mode.toHeadingPrecision = 10;
+	//console.log(mode);	
+	
+	chkAlarms();	// запускает оповещение
+	display();	// собственно рисует картинку
+};
+
+function websocketOnClose(event) {
+	if (event.wasClean) {
+		console.log(`Websocket closed cleary with cide ${event.code} by reason ${event.reason}`);
+	} 
+	else {	// сервер убил процесс или сеть недоступна. Обычно в этом случае event.code 1006
+		console.log(`Websocket closed: connection broken with code ${event.code} by reason ${event.reason}`);
+		window.setTimeout(doWebsocked, 5000, uri); 	// перезапустим сокет через 5 секунд
+	}
+	tpv = {};
+	display();
+}; // end function websocketOnClose
+
+function websocketOnError(error) {
+	console.log(`Websocket error: ${error.message}`);
+}; // end function websocketOnError
+
+doWebsocked(uri) //	запускаем прослушивание сокета и обработку полученного
+</script>
+

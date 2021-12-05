@@ -1,0 +1,250 @@
+img {
+	width: 16px;
+}
+@media (max-height: 255px) {
+	.big_symbol {
+		font-size:200px;
+	}
+	.mid_symbol {
+		font-size:20px;
+	}
+	.big_mid_symbol {
+		font-size:40px;
+	}
+	.small_symbol {
+		font-size:7px;
+	}
+	img {
+		width: 10px;
+		height: auto;
+	}
+	img.small {
+		width: 5px;
+		height: auto;
+		vertical-align: middle;
+	}
+	img.markHor {
+		width: 20px;
+		height: auto;
+	}
+	img.markVert {
+		width: auto;
+		height: 20px;
+	}
+	img.vert {
+		width: auto;
+		height: 30px;
+	}
+	img.hor {
+		width: 30px;
+		height: auto;
+	}
+}
+@media (min-height: 256px) and (max-height: 356px) {
+	.big_symbol {
+		font-size:200px;
+	}
+	.mid_symbol {
+		font-size:30px;
+	}
+	.big_mid_symbol {
+		font-size:60px;
+	}
+	.small_symbol {
+		font-size:10px;
+	}
+	img {
+		width: 15px;
+		height: auto;
+	}
+	img.small {
+		width: 7px;
+		height: auto;
+		vertical-align: middle;
+	}
+	img.markHor {
+		width: 30px;
+		height: auto;
+	}
+	img.markVert {
+		width: auto;
+		height: 30px;
+	}
+	img.vert {
+		width: auto;
+		height: 45px;
+	}
+	img.hor {
+		width: 45px;
+		height: auto;
+	}
+}
+@media (min-height: 357px) and (max-height: 576px) { /* SONY Reader PRS-T1 800x562 */
+	.big_symbol {
+		font-size:250px;
+	}
+	.mid_symbol {
+		font-size:40px;
+	}
+	.big_mid_symbol {
+		font-size:80px;
+	}
+	.small_symbol {
+		font-size:13px;
+	}
+	img {
+		width: 20px;
+		height: auto;
+	}
+	img.small {
+		width: 10px;
+		height: auto;
+		vertical-align: middle;
+	}
+	img.markHor {
+		width: 40px;
+		height: auto;
+	}
+	img.markVert {
+		width: auto;
+		height: 40px;
+	}
+	img.vert {
+		height: 60px;
+		width: auto;
+	}
+	img.hor {
+		width: 60px;
+		height: auto;
+	}
+}
+@media (min-height: 577px) and (max-height: 743px) {
+	.big_symbol {
+		font-size:320px;
+	}
+	.mid_symbol {
+		font-size:45px;
+	}
+	.big_mid_symbol {
+		font-size:90px;
+	}
+	.small_symbol {
+		font-size:15px;
+	}
+	img {
+		width: 30px;
+		height: auto;
+	}
+	img.small {
+		width: 15px;
+		height: auto;
+		vertical-align: middle;
+	}
+	img.markHor {
+		width: 60px;
+		height: auto;
+	}
+	img.markVert {
+		width: auto;
+		height: 60px;
+	}
+	img.vert {
+		height: 90px;
+		width: auto;
+	}
+	img.hor {
+		width: 90px;
+		height: auto;
+	}
+}
+@media (min-height: 744px) and (max-height: 899px) {
+	.big_symbol {
+		font-size:350px;
+	}
+	.mid_symbol {
+		font-size:50px;
+	}
+	.big_mid_symbol {
+		font-size:100px;
+	}
+	.small_symbol {
+		font-size:20px;
+	}
+	img {
+		width: 40px;
+		height: auto;
+	}
+	img.small {
+		width: 20px;
+		height: auto;
+		vertical-align: middle;
+	}
+	img.markHor {
+		width: 80px;
+		height: auto;
+	}
+	img.markVert {
+		width: auto;
+		height: 80px;
+	}
+	img.vert {
+		width: auto;
+		height: 120px;
+	}
+	img.hor {
+		width: 120px;
+		height: auto;
+	}
+}
+@media (min-height: 900px) {
+	.big_symbol {
+		font-size:530px;
+	}
+	.mid_symbol {
+		font-size:65px;
+	}
+	.big_mid_symbol {
+		font-size:130px;
+	}
+	.small_symbol {
+		font-size:30px;
+	}
+	img {
+		width: 50px;
+		height: auto;
+	}
+	img.small {
+		width: 25px;
+		height: auto;
+		vertical-align: middle;
+	}
+	img.markHor {
+		width: 100px;
+		height: auto;
+	}
+	img.markVert {
+		width: auto;
+		height: 100px;
+	}
+	img.vert {
+		width: auto;
+		height: 150px;
+	}
+	img.hor {
+		width: 150px;
+		height: auto;
+	}
+}
+.wb {
+	background-color:black;
+	color:white;
+}
+.alarm {
+    animation:blinkingText 1s infinite;
+}
+@keyframes blinkingText{
+    0%{     color: white;    }
+    50%{    color: transparent; }
+    100%{   color: white;    }
+}
+

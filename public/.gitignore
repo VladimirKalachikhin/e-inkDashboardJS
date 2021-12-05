@@ -1,0 +1,9 @@
+package-lock.json
+info.php
+*~
+test*
+_*
+*.zip
+отстой
+*.backup
+*/*~

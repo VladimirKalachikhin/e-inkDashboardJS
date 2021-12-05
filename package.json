@@ -1,0 +1,41 @@
+{
+  "name": "e-inkdashboardjs",
+  "version": "0.0.1",
+  "description": "Dashboard for powerful JavaScript-enabled e-ink devices with some Signal K instruments",
+  "main": "index.js",
+  "author": "Vladimir Kalachikhin",
+  "license": "CC-BY-SA-4.0",
+  "keywords": [
+    "signalk-node-server-plugin",
+    "signalk-webapp",
+    "signalk-category-instruments",
+    "e-ink"
+  ],
+  "homepage": "https://github.com/VladimirKalachikhin/e-inkDashboardJS#readme",
+  "bugs": {
+    "url": "https://github.com/VladimirKalachikhin/e-inkDashboardJS/issues",
+    "email": "galadrielmap@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VladimirKalachikhin/e-inkDashboardJS.git"
+  },
+  "funding": [
+    {
+      "type": "individual",
+      "url": "https://paypal.me/VladimirKalachikhin"
+    },
+    {
+      "type": "individual",
+      "url": "https://yasobe.ru/na/galadrielmap"
+    }
+  ],
+  "files": [
+    "screenshots/*",
+    "public/*"
+  ],
+  "dependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
