@@ -1,4 +1,29 @@
 // Функции
+/*
+display()
+chkAlarms()
+menuOnSubmit()
+menuOpen()
+openSetKeysWin()
+showDirectionMark()
+
+keySu(event)
+setKeys(event)
+saveKeys()
+
+symbolSized(symbol)
+
+getCookie(name)
+setCookie(name,data)
+
+saveMode()
+restoreMode()
+
+depthAlarm()
+maxSpeedAlarm()
+minSpeedAlarm()
+toHeadingAlarm()
+*/
 function display(){
 // собственно рисует картинку
 // Что будем рисовать
@@ -65,7 +90,7 @@ if(!prevMode){
 const rumbNames = ['&nbsp;&nbsp;&nbsp;N&nbsp;&nbsp;&nbsp;','NNE','&nbsp;NE&nbsp;','ENE','&nbsp;&nbsp;E&nbsp;&nbsp;','ESE','&nbsp;SE&nbsp;','SSE','&nbsp;&nbsp;&nbsp;S&nbsp;&nbsp;&nbsp;','SSW','&nbsp;SW&nbsp;','WSW','&nbsp;&nbsp;W&nbsp;&nbsp;','WNW','&nbsp;NW&nbsp;','NNW'];
 let currRumb = ['   ','   ','    ','   ','   ','   ','    ','   ','   ','   ','    ','   ','   ','   ','    ','   '];
 let rumbNum;
-if(mode.magnetic && ((tpv['magtrack']!==undefined) && (tpv['magtrack']!==null))) rumbNum = Math.round(tpv['magtrack'].value/22.5);
+if(mode.magnetic && tpv['magtrack']) rumbNum = Math.round(tpv['magtrack'].value/22.5);
 else if(tpv['track']) rumbNum = Math.round(tpv['track'].value/22.5);
 else rumbNum = null;
 if(rumbNum==16) rumbNum = 0;
@@ -178,7 +203,7 @@ function chkAlarms(){
 // Оповещения в порядке возрастания опасности, реально сработает последнее
 let alarmJS;
 alarm = false;	// на каждое событие отключаем сигнализацию, а что-нибудь из нижележащего её включит
-if(mode.minSpeedAlarm && (tpv['speed'].value!==null)) {
+if(mode.minSpeedAlarm && (tpv['speed'].value != (null || undefined))) {
 	if(tpv['speed'].value*60*60/1000 <= mode.minSpeedValue) {
 		mode.mode = 'speed';
 		header = dashboardMinSpeedAlarmTXT;
@@ -186,7 +211,7 @@ if(mode.minSpeedAlarm && (tpv['speed'].value!==null)) {
 		alarm = true;
 	}
 }
-if(mode.maxSpeedAlarm && (tpv['speed'].value!==null)) {
+if(mode.maxSpeedAlarm && (tpv['speed'].value != (null || undefined))) {
 	if(tpv['speed'].value*60*60/1000 >= mode.maxSpeedValue) {
 		mode.mode = 'speed';
 		header = dashboardMaxSpeedAlarmTXT;
@@ -211,7 +236,7 @@ if(mode.toHeadingAlarm) {
 		alarm = true;
 	}
 }
-if(mode.depthAlarm && (tpv['depth'].value!==null)) {
+if(mode.depthAlarm && (tpv['depth'].value != (null || undefined))) {
 	if(tpv['depth'].value <= mode.minDepthValue) {
 		mode.mode = 'depth';
 		header = dashboardDepthAlarmTXT;
@@ -321,26 +346,6 @@ else {
 	mainMenuWin.style.display="inherit";
 };
 } // end function menuOpen
-
-function getCookie(name) {
-// возвращает cookie с именем name, если есть, если нет, то null
-name=name.trim();
-var matches = document.cookie.match(new RegExp(
-	"(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
-	)
-);
-//console.log('matches',matches);
-return matches ? JSON.parse(decodeURIComponent(matches[1])) : null;
-} // end function getCookie
-
-function setCookie(name,data){
-const dateCookie = new Date(new Date().getTime()+1000*60*60*24*365).toGMTString();
-document.cookie = name+'='+JSON.stringify(data)+'; expires='+dateCookie+';';
-} // end function setCookie
-function saveMode(){
-setCookie('e-inkDashboardJSmode',mode);
-shadowmode = null;
-} // end function saveMode
 
 function openSetKeysWin() {
 /**/
@@ -564,6 +569,27 @@ if(fontZ>1) {
 }
 return symbol;
 } // end function symbolSized
+
+function getCookie(name) {
+// возвращает cookie с именем name, если есть, если нет, то null
+name=name.trim();
+var matches = document.cookie.match(new RegExp(
+	"(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+	)
+);
+//console.log('matches',matches);
+return matches ? JSON.parse(decodeURIComponent(matches[1])) : null;
+} // end function getCookie
+
+function setCookie(name,data){
+const dateCookie = new Date(new Date().getTime()+1000*60*60*24*365).toGMTString();
+document.cookie = name+'='+JSON.stringify(data)+'; expires='+dateCookie+';';
+} // end function setCookie
+
+function saveMode(){
+setCookie('e-inkDashboardJSmode',mode);
+shadowmode = null;
+} // end function saveMode
 
 function restoreMode(){
 const shadowmodeStr = JSON.stringify(shadowmode);
