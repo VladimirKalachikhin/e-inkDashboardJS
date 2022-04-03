@@ -55,7 +55,9 @@ YourSignalKport -- порт на этом компьютере, на котор�
 
 ## Поддержка
 
-[Обсуждение](https://github.com/VladimirKalachikhin/e-inkDashboardJS/discussions)
+[Форум](https://github.com/VladimirKalachikhin/Galadriel-map/discussions)
 
-Консультации могут быть получены в обмен на чашку кофе [через PayPal](https://paypal.me/VladimirKalachikhin) или [YandexMoney](https://yasobe.ru/na/galadrielmap) по адресу [galadrielmap@gmail.com](mailto:galadrielmap@gmail.com)  
+Форум будет живее, если вы сделаете пожертвование [через PayPal](https://paypal.me/VladimirKalachikhin) по адресу [galadrielmap@gmail.com](mailto:galadrielmap@gmail.com) или на [ЮМани](https://yasobe.ru/na/galadrielmap).
+
+Вы можете получить [индивидуальную платную консультацию](https://kwork.ru/training-consulting/20093293/konsultatsii-po-ustanovke-i-ispolzovaniyu-galadrielmap) по вопросам установки и использования e-inkDashboardJS.
 

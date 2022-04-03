@@ -557,7 +557,7 @@ for(var type in keyCodes){
 keyCodes = JSON.stringify(controlKeys);
 var date = new Date(new Date().getTime()+1000*60*60*24*365).toGMTString();
 //alert(keyCodes);
-document.cookie = 'GaladrielMapDashboardControlKeys='+keyCodes+'; expires='+date+';';
+document.cookie = 'GaladrielMapDashboardControlKeys='+keyCodes+'; expires='+date+'; samesite=Lax';
 setKeysWin.style.display = 'none';
 } // end function saveKeys
 
@@ -583,7 +583,7 @@ return matches ? JSON.parse(decodeURIComponent(matches[1])) : null;
 
 function setCookie(name,data){
 const dateCookie = new Date(new Date().getTime()+1000*60*60*24*365).toGMTString();
-document.cookie = name+'='+JSON.stringify(data)+'; expires='+dateCookie+';';
+document.cookie = name+'='+JSON.stringify(data)+'; expires='+dateCookie+'; samesite=Lax';
 } // end function setCookie
 
 function saveMode(){
