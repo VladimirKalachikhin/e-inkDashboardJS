@@ -19,10 +19,10 @@ setCookie(name,data)
 saveMode()
 restoreMode()
 
-depthAlarm()
-maxSpeedAlarm()
-minSpeedAlarm()
-toHeadingAlarm()
+depthAlarmSound()
+maxSpeedAlarmSound()
+minSpeedAlarmSound()
+toHeadingAlarmSound()
 */
 function display(){
 // собственно рисует картинку
@@ -87,18 +87,46 @@ if(!prevMode){
 }
 //console.log('Exit cycle type=',type,'prevMode=',prevMode,"mode.mode=",mode.mode,'nextMode=',nextMode,'symbol=',symbol);
 
+if(mode.toHeadingMagnetic && tpv['magtrack']) theHeading = tpv['magtrack'].value;
+else if(tpv['track']) theHeading = tpv['track'].value; 	// 
+else theHeading = null;
+
 const rumbNames = ['&nbsp;&nbsp;&nbsp;N&nbsp;&nbsp;&nbsp;','NNE','&nbsp;NE&nbsp;','ENE','&nbsp;&nbsp;E&nbsp;&nbsp;','ESE','&nbsp;SE&nbsp;','SSE','&nbsp;&nbsp;&nbsp;S&nbsp;&nbsp;&nbsp;','SSW','&nbsp;SW&nbsp;','WSW','&nbsp;&nbsp;W&nbsp;&nbsp;','WNW','&nbsp;NW&nbsp;','NNW'];
-let currRumb = ['   ','   ','    ','   ','   ','   ','    ','   ','   ','   ','    ','   ','   ','   ','    ','   '];
 let rumbNum;
-if(mode.magnetic && tpv['magtrack']) rumbNum = Math.round(tpv['magtrack'].value/22.5);
-else if(tpv['track']) rumbNum = Math.round(tpv['track'].value/22.5);
+if(mode.toHeadingMagnetic && tpv['magtrack']) theHeading = tpv['magtrack'].value;
+else if(tpv['track']) theHeading = tpv['track'].value; 	// 
+else theHeading = null;
+if(theHeading !== null){
+	rumbNum = theHeading;
+	rumbNum = Math.round(rumbNum/22.5);
+	if(rumbNum==16) rumbNum = 0;
+}
 else rumbNum = null;
-if(rumbNum==16) rumbNum = 0;
 //console.log("rumbNum=",rumbNum);
+let currRumb = ['   ','   ','    ','   ','   ','   ','    ','   ','   ','   ','    ','   ','   ','   ','    ','   '];
 currRumb[rumbNum] = rumbNames[rumbNum];
 
+//app.debug('mob data from server',mobPosition);
+let MOBtxt = '';
+if(mode.mob) {
+	MOBdiv.style.display = 'inherit';
+	MOBspan.innerHTML = dashboardMOBTXT;
+	if(mobPosition.from && mobPosition.to){
+		toHeadingAlarm = true;
+		mode.toHeadingValue = Math.round(bearing(mobPosition.from,mobPosition.to));
+		//console.log('mode.toHeadingValue=',mode.toHeadingValue,mobPosition.from,mobPosition.to);
+	}
+}
+else {
+	MOBdiv.style.display = 'none';
+	toHeadingAlarm = false;
+}
+
+if(mode.toHeadingAlarm) toHeadingAlarm = true;
+
 let percent=null;
-if(mode.toHeadingAlarm) {
+if(toHeadingAlarm) {
+	showDirectionMark();	// Метка указанного направления
 	// Метка текущего направления 	theHeading уже есть
 	if((theHeading>315)&&(theHeading<=360)){
 		percent = 100 - (theHeading - 315)*100/90;
@@ -135,6 +163,7 @@ if(mode.toHeadingAlarm) {
 	document.body.append(currTrackMark);
 }
 else {
+	currDirectMark.innerHTML='';
 	currTrackMark.innerHTML='';
 }
 
@@ -207,41 +236,59 @@ if(mode.minSpeedAlarm && (tpv['speed'].value != (null || undefined))) {
 	if(tpv['speed'].value*60*60/1000 <= mode.minSpeedValue) {
 		mode.mode = 'speed';
 		header = dashboardMinSpeedAlarmTXT;
-		alarmJS = 'minSpeedAlarm();';
+		alarmJS = 'minSpeedAlarmSound();';
 		alarm = true;
+		if(updNotifications) setSKnotification(displayData.speed.path,{method: ["sound", "visual"],state: "alarm",message: "Low speed!"}); 	// Установим оповещение
+	}
+	else{
+		if(updNotifications) setSKnotification(displayData.speed.path,null); 	// Уберём оповещение
 	}
 }
 if(mode.maxSpeedAlarm && (tpv['speed'].value != (null || undefined))) {
 	if(tpv['speed'].value*60*60/1000 >= mode.maxSpeedValue) {
 		mode.mode = 'speed';
 		header = dashboardMaxSpeedAlarmTXT;
-		alarmJS = 'maxSpeedAlarm();';
+		alarmJS = 'maxSpeedAlarmSound();';
 		alarm = true;
+		if(updNotifications) setSKnotification(displayData.speed.path,{method: ["sound", "visual"],state: "alarm",message: "Low speed!"}); 	// Установим оповещение
+	}
+	else{
+		if(updNotifications) setSKnotification(displayData.speed.path,null); 	// Уберём оповещение
 	}
 }
-theHeading=null;
-if(mode.toHeadingAlarm) {
+let theHeading=null;	// это будет другой theHeading, используемый только для вычисления тревоги
+if(mode.toHeadingAlarm && !mode.mob) {
 	if(mode.toHeadingMagnetic && tpv.magtrack) theHeading = tpv.magtrack.value;
 	else if(tpv.track) theHeading = tpv.track.value; 	// тревога прозвучит, даже если был указан магнитный курс, но его нет
 	else theHeading = null;
-	const minHeading = mode.toHeadingValue - mode.toHeadingPrecision;
-	if(minHeading<0) minHeading = minHeading+360;
-	const maxHeading = mode.toHeadingValue + mode.toHeadingPrecision;
-	if(maxHeading>=360) maxHeading = maxHeading-360;
-	//console.log('alarm=',alarm,'theHeading=',theHeading,'minHeading=',minHeading,'maxHeading=',maxHeading)
-	if((theHeading < minHeading) || (theHeading > maxHeading)) {
-		mode.mode = 'track';
-		header = dashboardToHeadingAlarmTXT;
-		alarmJS = 'toHeadingAlarm();';
-		alarm = true;
+	if(theHeading){
+		const minHeading = mode.toHeadingValue - mode.toHeadingPrecision;
+		if(minHeading<0) minHeading = minHeading+360;
+		const maxHeading = mode.toHeadingValue + mode.toHeadingPrecision;
+		if(maxHeading>=360) maxHeading = maxHeading-360;
+		//console.log('alarm=',alarm,'theHeading=',theHeading,'minHeading=',minHeading,'maxHeading=',maxHeading)
+		if((theHeading < minHeading) || (theHeading > maxHeading)) {
+			mode.mode = 'track';
+			header = dashboardToHeadingAlarmTXT;
+			alarmJS = 'toHeadingAlarmSound();';
+			alarm = true;
+			if(updNotifications) setSKnotification(displayData.track.path,{method: ["sound", "visual"],state: "alarm",message: "Course lost!"}); 	// Установим оповещение
+		}
+	}
+	else {
+		if(updNotifications) setSKnotification(displayData.track.path,null); 	// Уберём оповещение
 	}
 }
 if(mode.depthAlarm && (tpv['depth'].value != (null || undefined))) {
 	if(tpv['depth'].value <= mode.minDepthValue) {
 		mode.mode = 'depth';
 		header = dashboardDepthAlarmTXT;
-		alarmJS = 'depthAlarm();';
+		alarmJS = 'depthAlarmSound();';
 		alarm = true;
+		if(updNotifications) setSKnotification(displayData.depth.path,{method: ["sound", "visual"],state: "alarm",message: "Shallow!"}); 	// Установим оповещение
+	}
+	else {
+		if(updNotifications) setSKnotification(displayData.depth.path,null); 	// Уберём оповещение
 	}
 }
 if(alarm){
@@ -285,18 +332,65 @@ for(let radio of document.getElementById("toHeadingPrecision").querySelectorAll(
 		break;
 	}
 }
+
+// попытаемся выставить границы параметров
+// Скорость
+if(updNotifications){
+	if(mode.minSpeedAlarm || mode.maxSpeedAlarm){
+		let zones=[],minVal=0,maxVal=102.2;
+		if(mode.minSpeedAlarm) {
+			minVal = mode.minSpeedValue*1000/(60*60);
+			zones.push({lower: 0, upper: minVal, state: "alarm"});
+		}
+		if(mode.maxSpeedAlarm) {
+			maxVal = mode.maxSpeedValue*1000/(60*60);
+			zones.push({lower: maxVal, upper: 102.2, state: "alarm"});
+		}
+		zones.push({lower: minVal, upper: maxVal, state: "normal"});
+		setSKzones(displayData.speed.path,zones);	// установим границы значений
+	}
+	else {
+		setSKzones(displayData.speed.path,null,null);	// уберём границы значений
+		setSKnotification(displayData.speed.path,null) 	// уберём оповещение
+	}
+	// Глубина
+	if(mode.depthAlarm) {
+		let zones=[],minVal=0,maxVal=11000;
+		minVal = mode.minDepthValue;
+		zones.push({lower: 0, upper: minVal, state: "alarm"});
+		zones.push({lower: minVal, upper: maxVal, state: "normal"});
+		//app.debug('zones:',zones);
+		setSKzones(displayData.depth.path,zones);	// установим границы значений
+	}
+	else {
+		setSKzones(displayData.depth.path,null,null);	// уберём границы значений
+		setSKnotification(displayData.depth.path,null) 	// уберём оповещение
+	}
+	// Направление
+	if(mode.toHeadingAlarm) {
+		let zones=[],minVal,maxVal;
+		minVal = mode.toHeadingValue-mode.toHeadingPrecision;
+		if(minVal<0) minVal = minVal+360;
+		maxVal = mode.toHeadingValue+mode.toHeadingPrecision;
+		if(maxVal>=360) maxVal = maxVal-360;
+		zones.push({lower: 0, upper: minVal, state: "alarm"});
+		zones.push({lower: maxVal, upper: 360, state: "alarm"});
+		zones.push({lower: minVal, upper: maxVal, state: "normal"});
+		//app.debug('zones:',zones);
+		setSKzones(displayData.track.path,zones);	// установим границы значений
+	}
+	else {
+		setSKzones(displayData.track.path,null,null);	// уберём границы значений
+		setSKnotification(displayData.track.path,null) 	// уберём оповещение
+	}
+}
+
 mode.toHeadingMagnetic = mode.magnetic;
 if(mode.toHeadingValue===null) mode.toHeadingAlarm = false;
 //console.log("mode on submit:",mode);
 saveMode();
 mainMenuWin.style.display = "none";
 
-if(mode.toHeadingAlarm) {
-	showDirectionMark();	// Метка указанного направления
-}
-else {
-	currDirectMark.innerHTML='';
-}
 display();	
 } // end function menuOnSubmit
 
@@ -603,17 +697,92 @@ else mode = JSON.parse(shadowmodeStr);	// реальная копия, пото�
 
 var snd = new Audio("img/beep-02.wav");
 //console.log(snd);
-function depthAlarm() { 	// 
+function depthAlarmSound() { 	// 
 	return setInterval(function(){snd.play();},200)
 }
-function maxSpeedAlarm() {
+function maxSpeedAlarmSound() {
 	return setInterval(function(){snd.play();},1000)
 }
-function minSpeedAlarm() {
+function minSpeedAlarmSound() {
 	return setInterval(function(){snd.play();},1500)
 }
-function toHeadingAlarm() {
+function toHeadingAlarmSound() {
 	return setInterval(function(){snd.play();},500)
 }
 
+function bearing(latlng1, latlng2) {
+/* азимут направления между двумя точками в градусах */
+//console.log('[bearing] input','latlng1',latlng1,'latlng2',latlng2);
+const rad = Math.PI/180;
+let lat1,lat2,lon1,lon2;
+if(Array.isArray(latlng1)){
+	lat1 = latlng1[1] * rad;
+	lon1 = latlng1[0] * rad;
+}
+else{
+	lat1 = latlng1.lat * rad;
+	lon1 = latlng1.lng * rad;
+}
+if(Array.isArray(latlng2)){
+	lat2 = latlng2[1] * rad;
+	lon2 = latlng2[0] * rad;
+}
+else{
+	lat2 = latlng2.lat * rad;
+	lon2 = latlng2.lng * rad;
+}
+//app.debug('lat1=',lat1,'lat2=',lat2,'lon1=',lon1,'lon2=',lon2);
+
+let y = Math.sin(lon2 - lon1) * Math.cos(lat2);
+let x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1);
+//console.log('x',x,'y',y)
+
+let bearing = ((Math.atan2(y, x) * 180 / Math.PI) + 360) % 360;
+if(bearing >= 360) bearing = bearing-360;
+
+return bearing;
+} // end function bearing
+
+function setSKzones(path,zones,alarmMethod=["sound", "visual"]){
+// Чисто потому что запись очень громоздкая
+const delta = {
+	context: 'vessels.self',
+	updates: [
+		{
+			source: { label: 'e-inkDashboardJS' },
+			timestamp: new Date().toISOString(),
+			meta: [
+				{
+					path: path,
+					value: {
+						alarmMethod: alarmMethod,
+						zones : zones
+					}
+				}
+			],
+		}
+	]
+};
+socket.send(JSON.stringify(delta)); 	// оно, конечно, упоминать тут глобальный сокет -- дурной тон, но это же javascript...
+} // end function setSKzones
+
+function setSKnotification(path,value){
+// Чисто потому что запись очень громоздкая
+const delta = {
+	context: 'vessels.self',
+	updates: [
+		{
+			source: { label: 'e-inkDashboardJS' },
+			timestamp: new Date().toISOString(),
+			values: [
+				{
+					path: 'notifications.'+path,
+					value: value
+				}
+			],
+		}
+	]
+};			
+socket.send(JSON.stringify(delta)); 	// оно, конечно, упоминать тут глобальный сокет -- дурной тон, но это же javascript...
+} // end function setSKnotification
 

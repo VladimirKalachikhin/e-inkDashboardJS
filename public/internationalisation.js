@@ -21,6 +21,7 @@ if(navigator.language.includes('ru')){
 	var dashboardKeyPrevTXT = 'Предыдущий режим';
 	var dashboardKeyMenuTXT = 'Меню оповещений';
 	var dashboardKeyMagneticTXT = 'Магнитный курс';
+	var dashboardMOBTXT = 'Человек за бортом!';
 }
 else {
 	var dashboardHeadingTXT = 'Course';
@@ -44,6 +45,7 @@ else {
 	var dashboardKeyPrevTXT = 'Previous mode';
 	var dashboardKeyMenuTXT = 'Alarm menu';
 	var dashboardKeyMagneticTXT = 'Magnetic course';
+	var dashboardMOBTXT = 'A man overboard!';
 }
 
 function internationalisation(){

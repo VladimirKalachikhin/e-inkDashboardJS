@@ -96,6 +96,14 @@ plugin.schema = {
 			`,
 			'default': true
 		},
+		'updNotifications':{
+			'type': 'boolean',
+			'title': 'Update SignalK notifications',
+			'description': `Updating the SignalK notification system value zones and raising alarms. Note that
+			each instance of the dashboard has its own alarms, but SignalK alert is one for all.
+			`,
+			'default': true
+		},
 	}
 };
 
@@ -119,22 +127,26 @@ else if(options.depthProp.feature.includes('DBT')) options.depthProp.feature = '
 
 const optionsjs = `
 const checkDataFreshness = ${options.checkDataFreshness};
+var updNotifications = ${options.updNotifications};
 // типы данных, которые, собственно, будем показывать 
 const displayData = {  	// 
 	'track' : {'variants' : [['track',dashboardHeadingTXT],['magtrack',dashboardMagHeadingTXT]], 	// курс или магнитный курс
 		'precision' : 0,	// точность показываемой цифры, символов после запятой
 		'multiplicator' : 1, 	// на что нужно умножить значение для показа
-		'fresh': ${(5+options.trackProp.maxRefreshInterval) * 1000}		// время свежести, миллисек.
+		'fresh': ${(5+options.trackProp.maxRefreshInterval) * 1000},		// время свежести, миллисек.
+		'path': '${options.trackProp.feature}'
 	},
 	'speed' : {'variants' : [['speed',dashboardSpeedTXT+', '+dashboardSpeedMesTXT]],	// скорость
 		'precision' : 1,
 		'multiplicator' : 60*60/1000,
-		'fresh': ${(3+options.speedProp.maxRefreshInterval) * 1000}
+		'fresh': ${(3+options.speedProp.maxRefreshInterval) * 1000},
+		'path': '${options.speedProp.feature}'
 	},
 	'depth' : {'variants' : [['depth',dashboardDepthTXT+', '+dashboardDepthMesTXT]], 	// глубина
 		'precision' : 1,
 		'multiplicator' : 1,
-		'fresh': ${(2+options.depthProp.maxRefreshInterval) * 1000}
+		'fresh': ${(2+options.depthProp.maxRefreshInterval) * 1000},
+		'path': '${options.depthProp.feature}'
 	}
 };
 const signalKsubscribe = {
@@ -170,6 +182,12 @@ const signalKsubscribe = {
 			"policy": "instant",
 			"minPeriod": ${options.trackProp.maxRefreshInterval * 1000}
 		},
+		{
+			"path": "notifications.mob",
+			"format": "delta",
+			"policy": "instant",
+			"minPeriod": 0
+		}
 	]
 };
 `;

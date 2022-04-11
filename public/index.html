@@ -20,6 +20,7 @@ var alarm = false, prevMode = null, nextMode = null, theHeading=null;
 var keyCodes = {};
 var nowFsound; 	// функция, сейчас воспроизводящая звук
 var alarmInterval;	// объект setInterval со звуком оповещения. Для прекращения звука.
+var toHeadingAlarm=false;	// флаг, что надо показывать рамочку с напралением. Она общая для собственно сообщения об отклонении от курса, и для режима "Человек за бортом". Поэтому вот так.
 
 // Восстановление состояния
 let shadowmode = getCookie('e-inkDashboardJSmode');
@@ -135,6 +136,7 @@ window.addEventListener("keydown", keySu, true);
 '>
 	<div style='text-align:center;'>
 		<span id='headerSpan' class='mid_symbol' style='vertical-align:middle; padding: 0; margin: 0;'></span>
+		<div id='MOBdiv' style="display:none;position:absolute;left:1%;right:auto;top:20%;opacity: 0.3;"  class="big_mid_symbol wb"><span id='MOBspan' style=""></span></div>;
 	</div>
 	<div id='dashboard' class='' style='text-align:center; padding: 0; margin: 0;'>
 		<span id='symbolSpan' class='big_symbol' style='vertical-align:middle;'></span>
@@ -207,11 +209,13 @@ if(mode.toHeadingAlarm) {
 <script>
 // Коммуникативная часть
 let tpv = {};
+let mobPosition = {};
 //const uri = `ws://localhost:3000/signalk/v1/stream?subscribe=none`;
 const uri = `ws://${document.location.host}/signalk/v1/stream?subscribe=none`; 	// подписываться будем отдельно
 
+var socket;
 function doWebsocked(uri){
-let socket = new WebSocket(uri);
+socket = new WebSocket(uri);
 socket.onopen = websocketOnOpen;
 socket.onmessage = websocketOnMessage;
 socket.onclose = websocketOnClose;
@@ -220,7 +224,7 @@ socket.onerror = websocketOnError;
 
 function websocketOnOpen(event) {
 	console.log("Winsocket open: Connection establish with "+uri);
-	event.target.send(JSON.stringify(signalKsubscribe));	// signalKsubscribe в options.js
+	event.target.send(JSON.stringify(signalKsubscribe));	// подписываемся, signalKsubscribe в options.js
 }; // end function websocketOnOpen
 
 function websocketOnMessage(event) {
@@ -228,22 +232,27 @@ function websocketOnMessage(event) {
 	// Получаем исходные данные
 	let SKdata;
 	try {
-		SKdata = JSON.parse(event.data);
+		SKdata = JSON.parse(event.data);	// но просто строка -- это корректный json, и никаких ошибок не будет, если сервер вернул не json
+		if(!SKdata) throw Error('inbound empty');
+		if(typeof SKdata !== 'object')  throw Error('inbound not a object: '+SKdata);
 	}
 	catch(error) {
-		console.log('Parsing inbound data',error.message);
+		console.log('Parsing inbound data error: ',error.message);
 		tpv = {};
+		mobPosition = {};
 		display();
 		return;
 	}
 	//console.log(`[message] Данные получены с сервера: `,SKdata);
 	if(SKdata.roles) { 	// greeting
 		tpv = {};
+		mobPosition = {};
 		display();
 		return;
 	}
 	// Берём нужные данные
 	for(let props of SKdata.updates){
+		if(!props.values) continue;	// я не знаю, когда и почему вдруг может не быть. Но не бывает
 		for(let prop of props.values) {
 			//console.log(prop.path,prop.value)
 			
@@ -297,6 +306,38 @@ function websocketOnMessage(event) {
 				if(!tpv.magvar) tpv.magvar = {};
 				tpv['magvar'].value = prop.value *180/Math.PI;
 				tpv.magvar.timestamp =  Date.parse(props.timestamp);
+				break;
+			case 'navigation.position':
+				mobPosition.from = [prop.value.longitude,prop.value.latitude];
+				break;
+			case 'notifications.mob':
+				if(prop.value){
+					if(!mode.mob){
+						console.log('notifications.mob: sending subscription');
+						socket.send('{"context": "vessels.self","subscribe": [{"path": "navigation.position",	"format": "delta", "policy": "instant",	"minPeriod": 0}]}');	// подписываемся на координаты
+						mode.mob = true;
+					}
+					if(prop.value.position){	// Это GeoJSON
+						// поищем точку, указанную как текущая
+						for(let point of prop.value.position.features){	// там не только точки, но и LineString
+							if((point.geometry.type == "Point")  && point.properties.current){
+								mobPosition.to = point.geometry.coordinates;
+								break;
+							}
+						}
+					}
+				}
+				else {
+					if(mode.mob){
+						// В злопаршивом SignalK подписаться можно на любое значение отдельно,
+						// но вот отписаться -- только от всех сразу и везде.
+						// Соответственно, если я не знаю, на что подписался -- кирдык, отписаться от чего-то невозможно
+						console.log('notifications.mob: unsudscribe');
+						socket.send('{"context": "*","unsubscribe": [{"path": "*"}]}');	// отписываемся от всего
+						event.target.send(JSON.stringify(signalKsubscribe));	// подписываемся, signalKsubscribe в options.js
+						mode.mob = false;
+					}
+				}
 				break;
 			}
 		}
