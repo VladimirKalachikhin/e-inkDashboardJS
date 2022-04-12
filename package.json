@@ -1,6 +1,6 @@
 {
   "name": "e-inkdashboardjs",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Dashboard for powerful JavaScript-enabled e-ink devices with some Signal K instruments",
   "main": "index.js",
   "author": "Vladimir Kalachikhin",
