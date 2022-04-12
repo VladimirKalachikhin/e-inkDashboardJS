@@ -37,6 +37,7 @@ for(let i=0;i<cnt;i++){ 	//
 	type = parms[i];	// что показывать
 	parm = displayData[type];	// как показывать
 	//console.log('Начало цикла type=',type,"parm=",parm,'mode.mode=',mode.mode);
+	//console.log('Начало цикла type=',type,'mode.mode=',mode.mode);
 	if(!mode.mode) mode.mode = type; 	// что-то не так с типом, сделаем текущий тип указанным. mode.mode -- это то, что сейчас показывается на главном экране
 	if(enough) {
 		variant = 0;
@@ -681,16 +682,22 @@ document.cookie = name+'='+JSON.stringify(data)+'; expires='+dateCookie+'; sames
 } // end function setCookie
 
 function saveMode(){
+//console.log('saveMode',mode.mode);
 setCookie('e-inkDashboardJSmode',mode);
-shadowmode = null;
+shadowmode = JSON.parse(JSON.stringify(mode));	// менее через жопу скопировать объект нельзя
 } // end function saveMode
 
 function restoreMode(){
+//console.log('restoreMode from',mode.mode,'to',shadowmode.mode);
 const shadowmodeStr = JSON.stringify(shadowmode);
 let modeStr = JSON.stringify(mode);
 // в этом мудацком языке нельзя сравнивать разные объекты
-if(shadowmodeStr == modeStr) shadowmode = null;
-else mode = JSON.parse(shadowmodeStr);	// реальная копия, потому что в этом мудацком языке имя переменной -- отдельная сущность, но явной операции разименования нет.
+//if(shadowmodeStr == modeStr) shadowmode = null;	// А оно надо -- прекращать периодическое восстановление? Есл прекратить, то временное протухание значения приведёт к показу умолчального.
+//else mode = JSON.parse(shadowmodeStr);	// реальная копия, потому что в этом мудацком языке имя переменной -- отдельная сущность, но явной операции разименования нет.
+if(shadowmodeStr != modeStr) {
+	//console.log('Разные!');
+	mode = JSON.parse(shadowmodeStr);
+}
 } // end function restoreMode
 
 

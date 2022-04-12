@@ -19,7 +19,7 @@ const displayData = {  	//
 		'precision' : 1,
 		'multiplicator' : 1,
 		'fresh': 2000,
-		'path': 'environment.depth.belowSurface'
+		'path': 'environment.depth.belowTransducer'
 	}
 };
 const signalKsubscribe = {
@@ -38,7 +38,7 @@ const signalKsubscribe = {
 			"minPeriod": 0
 		},
 		{
-			"path": "environment.depth.belowSurface",
+			"path": "environment.depth.belowTransducer",
 			"format": "delta",
 			"policy": "instant",
 			"minPeriod": 0

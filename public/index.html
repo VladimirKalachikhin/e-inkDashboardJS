@@ -145,7 +145,7 @@ window.addEventListener("keydown", keySu, true);
 		<button id='magneticTurnButton' class='mid_symbol' style='width:14%;vertical-align:middle;' onClick='mode.magnetic=!mode.magnetic;display();saveMode();'>	
 			<span id='magneticTurnButtonSpan'></span>
 		</button>
-		<button class='mid_symbol' style='width:70%;vertical-align:middle;' onClick='mode.mode=nextMode;display();saveMode();'>
+		<button class='mid_symbol' style='width:70%;vertical-align:middle;' onClick='mode.mode=nextMode;saveMode();display();'>
 			<span id='nextsymbolSpan' style=''></span>
 		</button>
 		<button class='mid_symbol' style='width:14%;vertical-align:middle;' onClick='menuOpen();'
@@ -252,7 +252,7 @@ function websocketOnMessage(event) {
 	}
 	// Берём нужные данные
 	for(let props of SKdata.updates){
-		if(!props.values) continue;	// я не знаю, когда и почему вдруг может не быть. Но не бывает
+		if(!props.values) continue;	// я не знаю, когда и почему вдруг может не быть. Но -- не бывает
 		for(let prop of props.values) {
 			//console.log(prop.path,prop.value)
 			
@@ -342,18 +342,15 @@ function websocketOnMessage(event) {
 			}
 		}
 	}
-
-	//delete tpv['track']; 	// 
-	//delete tpv['speed']; 	// 
-	//delete tpv['depth']; 	// 
 	
 	// Очищаем данные от устаревших
 	if(checkDataFreshness){
 		for(let props in displayData){
 			for(let variant of displayData[props].variants){
 				if(variant[0] in tpv){
-					//console.log(displayData[props],variant[0])
 					window.setTimeout(function(tpvElem,fresh){
+						//const tpvElem = variant[0];	const fresh = displayData[props].fresh;
+						//if(tpvElem=='depth') console.log('Очищаем данные от устаревших',tpvElem,fresh,Date.now()-tpv[tpvElem].timestamp,fresh);
 						if(tpv[tpvElem] && ((Date.now()-tpv[tpvElem].timestamp)>fresh)){
 							console.log('Property',tpvElem,'expired on',(Date.now()-tpv[tpvElem].timestamp)/1000,'sec.');
 							delete tpv[tpvElem]; 	// 
