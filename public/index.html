@@ -350,7 +350,7 @@ function websocketOnMessage(event) {
 				if(variant[0] in tpv){
 					window.setTimeout(function(tpvElem,fresh){
 						//const tpvElem = variant[0];	const fresh = displayData[props].fresh;
-						//if(tpvElem=='depth') console.log('Очищаем данные от устаревших',tpvElem,fresh,Date.now()-tpv[tpvElem].timestamp,fresh);
+						//console.log('Очищаем данные от устаревших',tpvElem,fresh,Date.now()-tpv[tpvElem].timestamp);
 						if(tpv[tpvElem] && ((Date.now()-tpv[tpvElem].timestamp)>fresh)){
 							console.log('Property',tpvElem,'expired on',(Date.now()-tpv[tpvElem].timestamp)/1000,'sec.');
 							delete tpv[tpvElem]; 	// 
