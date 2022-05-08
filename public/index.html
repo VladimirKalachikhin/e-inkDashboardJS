@@ -206,6 +206,7 @@ if(mode.toHeadingAlarm) {
 	showDirectionMark();	// Метка указанного направления
 }
 </script>
+
 <script>
 // Коммуникативная часть
 let tpv = {};
@@ -313,9 +314,10 @@ function websocketOnMessage(event) {
 			case 'notifications.mob':
 				if(prop.value){
 					if(!mode.mob){
-						console.log('notifications.mob: sending subscription');
+						console.log('MOB alarm, sending subscription to coordinates');
 						socket.send('{"context": "vessels.self","subscribe": [{"path": "navigation.position",	"format": "delta", "policy": "instant",	"minPeriod": 0}]}');	// подписываемся на координаты
 						mode.mob = true;
+						if(shadowmode) shadowmode.mob = true;	// зафиксируем изменение mode как если бы была нажата кнопка, но нужно изменить только mode.mob, а не все параметры, некоторые из которых в этот момент могут быть кривыми
 					}
 					if(prop.value.position){	// Это GeoJSON
 						// поищем точку, указанную как текущая
@@ -332,10 +334,11 @@ function websocketOnMessage(event) {
 						// В злопаршивом SignalK подписаться можно на любое значение отдельно,
 						// но вот отписаться -- только от всех сразу и везде.
 						// Соответственно, если я не знаю, на что подписался -- кирдык, отписаться от чего-то невозможно
-						console.log('notifications.mob: unsudscribe');
+						console.log('MOB alarm terminate, unsudscribe from coordinates');
 						socket.send('{"context": "*","unsubscribe": [{"path": "*"}]}');	// отписываемся от всего
 						event.target.send(JSON.stringify(signalKsubscribe));	// подписываемся, signalKsubscribe в options.js
 						mode.mob = false;
+						if(shadowmode) shadowmode.mob = false;	// зафиксируем изменение mode как если бы была нажата кнопка, но нужно изменить только mode.mob, а не все параметры, некоторые из которых в этот момент могут быть кривыми
 					}
 				}
 				break;
