@@ -14,7 +14,7 @@ plugin.schema = {
 	'properties': {
 		'trackProp':{
 			'title': '',
-			'description': 'Reload Dashboard after changing all of this.',
+			'description': 'Reload Dashboard page in browser after changing any of this.',
 			'type': 'object',
 			'properties': {
 				'feature':{

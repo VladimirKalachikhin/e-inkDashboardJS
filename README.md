@@ -1,5 +1,5 @@
 [Русское описание](https://github.com/VladimirKalachikhin/e-inkDashboardJS/blob/master/README.ru-RU.md)  
-# e-ink Dashboard for Signal K [![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-sa/4.0/)
+# e-ink Dashboard for SignalK [![License: CC BY-NC-SA 4.0](screenshots/Cc-by-nc-sa_icon.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en)
 
 ## v. 0.1
 The e-inkDashboardJS displaying in real time some instruments, attached to Signal K, on modern and powerful e-ink readers.  
@@ -53,6 +53,6 @@ Besides that the e-inkDashboardJS take MOB notification from SignalK. If it has 
 
 [Discussions](https://github.com/VladimirKalachikhin/Galadriel-map/discussions)
 
-The forum will be more lively if you make a donation [via PayPal](https://paypal.me/VladimirKalachikhin)  at [galadrielmap@gmail.com](mailto:galadrielmap@gmail.com) or at [ЮMoney](https://yasobe.ru/na/galadrielmap)
+The forum will be more lively if you make a donation at [ЮMoney](https://sobe.ru/na/galadrielmap)
 
 [Paid personal consulting](https://kwork.ru/it-support/20093939/galadrielmap-installation-configuration-and-usage-consulting)  

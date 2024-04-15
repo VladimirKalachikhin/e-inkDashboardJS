@@ -1,10 +1,10 @@
 {
   "name": "e-inkdashboardjs",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Dashboard for powerful JavaScript-enabled e-ink devices with some Signal K instruments",
   "main": "index.js",
   "author": "Vladimir Kalachikhin",
-  "license": "CC-BY-SA-4.0",
+  "license": "CC BY-NC-SA 4.0",
   "keywords": [
     "signalk-node-server-plugin",
     "signalk-webapp",
@@ -23,16 +23,12 @@
   "funding": [
     {
       "type": "individual",
-      "url": "https://paypal.me/VladimirKalachikhin"
-    },
-    {
-      "type": "individual",
-      "url": "https://yasobe.ru/na/galadrielmap"
+      "url": "https://sobe.ru/na/galadrielmap"
     }
   ],
   "files": [
-    "screenshots/*",
-    "public/*"
+    "screenshots/",
+    "public/"
   ],
   "dependencies": {},
   "scripts": {

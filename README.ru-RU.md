@@ -1,5 +1,5 @@
 [In English](https://github.com/VladimirKalachikhin/e-inkDashboardJS/blob/master/README.md)  
-# e-ink Dashboard for Signal K [![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-sa/4.0/)
+# e-ink Dashboard for SignalK [![License: CC BY-NC-SA 4.0](screenshots/Cc-by-nc-sa_icon.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en)
 
 e-inkDashboardJS -- это расширение для Signal K, веб-приложение, которое в реальном времени показывает некоторые параметры от сервера Signal K на телефонах/планшетах или современных мощных устройствах с экранами на электронных чернилах. Поддержка JavaScript на устройстве обязательна.  
 На устройство не нужно устанавливать никаких приложений, нужен только современный браузер.
@@ -62,7 +62,7 @@ YourSignalKport -- порт на этом компьютере, на котор�
 
 [Форум](https://github.com/VladimirKalachikhin/Galadriel-map/discussions)
 
-Форум будет живее, если вы сделаете пожертвование [через PayPal](https://paypal.me/VladimirKalachikhin) по адресу [galadrielmap@gmail.com](mailto:galadrielmap@gmail.com) или на [ЮМани](https://yasobe.ru/na/galadrielmap).
+Форум будет живее, если вы сделаете пожертвование на [ЮМани](https://sobe.ru/na/galadrielmap).
 
 Вы можете получить [индивидуальную платную консультацию](https://kwork.ru/training-consulting/20093293/konsultatsii-po-ustanovke-i-ispolzovaniyu-galadrielmap) по вопросам установки и использования e-inkDashboardJS.
 
